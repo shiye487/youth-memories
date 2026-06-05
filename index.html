@@ -80,6 +80,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 .avatar-4{background:#ff3b5c}.avatar-5{background:#af52de}.avatar-6{background:#007aff}
 .avatar-7{background:#ff6482}.avatar-8{background:#30b0c7}
 @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}.fade-in{animation:fadeIn .3s ease}
+.img-upload-area{margin-top:8px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.img-upload-btn{display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px dashed var(--border);border-radius:8px;font-size:13px;color:var(--text3);cursor:pointer;transition:all .2s;background:var(--bg)}
+.img-upload-btn:hover{border-color:var(--primary);color:var(--primary)}
+.img-upload-btn input{display:none}
+.img-preview{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
+.img-preview img{width:100%;height:100%;object-fit:cover}
+.img-preview .img-remove{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
+.detail-body img{max-width:100%;border-radius:8px;margin:8px 0}
+.c-text img{max-width:200px;border-radius:6px;margin:4px 0}
+.upload-progress{font-size:12px;color:var(--primary);margin-left:8px}
 @media(max-width:640px){.header-inner{padding:16px}.site-logo h1{font-size:18px}.main-wrap{padding:16px}.post-card{padding:16px}.post-detail{padding:20px}.new-post-form{padding:20px}.stats-bar{gap:10px}.stat-card{padding:12px}.stat-card .num{font-size:22px}}
 </style>
 </head>
@@ -124,7 +134,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 <div class="form-group"><label>你的昵称</label><input type="text" id="npAuthor" placeholder="输入你的名字或昵称" maxlength="20"></div>
 <div class="form-group"><label>话题分区</label><select id="npCategory"><option value="班级回忆">🏫 班级回忆</option><option value="校园趣事">😂 校园趣事</option><option value="毕业感言">🎓 毕业感言</option><option value="恩师难忘">👨‍🏫 恩师难忘</option><option value="青春相册">📸 青春相册</option><option value="食堂吐槽">🍜 食堂吐槽</option></select></div>
 <div class="form-group"><label>标题</label><input type="text" id="npTitle" placeholder="给你的回忆起个标题" maxlength="60"></div>
-<div class="form-group"><label>正文</label><textarea id="npContent" placeholder="写下你的高中回忆..."></textarea></div>
+<div class="form-group"><label>正文</label><textarea id="npContent" placeholder="写下你的高中回忆..."></textarea>
+<div class="img-upload-area" id="imgArea">
+<label class="img-upload-btn"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>添加图片<input type="file" accept="image/*" multiple id="imgInput" onchange="handleImages(this.files)"></label>
+<span class="upload-progress" id="uploadProgress" style="display:none"></span>
+<div id="imgPreviewList" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+</div></div>
 <div class="form-actions"><button class="btn btn-ghost" onclick="showList()">取消</button><button class="btn btn-submit" id="submitBtn" onclick="submitPost()">发布回忆</button></div>
 </div>
 </div>
@@ -137,13 +152,77 @@ const TOKEN=_t.join("");
 const HEADERS = {"Authorization":"token "+TOKEN,"Accept":"application/vnd.github.v3+json","Content-Type":"application/json"};
 const COLORS = ['avatar-1','avatar-2','avatar-3','avatar-4','avatar-5','avatar-6','avatar-7','avatar-8'];
 
-let allPosts=[], currentTab='全部';
+let allPosts=[], currentTab='全部', uploadedImages=[];
 
 function getInit(n){return n.charAt(0)}
 function getAC(n){let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return COLORS[Math.abs(h)%COLORS.length]}
 function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
 function fmtTime(s){if(!s)return '';const d=new Date(s);const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+// Render markdown images in content
+function renderContent(text){
+  let safe=esc(text);
+  safe=safe.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">');
+  safe=safe.replace(/\n/g,'<br>');
+  return safe;
+}
+
+// Image upload handling
+async function handleImages(files){
+  if(!files||!files.length)return;
+  const prog=document.getElementById('uploadProgress');
+  for(let i=0;i<files.length;i++){
+    const file=files[i];
+    if(file.size>5*1024*1024){toast('图片不能超过5MB');continue}
+    prog.style.display='inline';prog.textContent='上传中 '+(i+1)+'/'+files.length+'...';
+    try{
+      const b64=await fileToBase64(file);
+      const ts=Date.now()+'_'+Math.random().toString(36).slice(2,8);
+      const ext=file.name.split('.').pop()||'jpg';
+      const fname='img_'+ts+'.'+ext;
+      const path='images/'+fname;
+      const res=await fetch(API+'/contents/'+path,{method:'PUT',headers:HEADERS,body:JSON.stringify({message:'Upload image',content:b64})});
+      if(!res.ok)throw new Error(res.status);
+      const data=await res.json();
+      const rawUrl='https://raw.githubusercontent.com/'+REPO+'/main/'+path;
+      uploadedImages.push(rawUrl);
+      const ta=document.getElementById('npContent');
+      ta.value+=(ta.value?'\n':'')+'!['+file.name+']('+rawUrl+')';
+      addPreview(rawUrl,uploadedImages.length-1);
+      toast('图片上传成功');
+    }catch(e){console.error(e);toast('图片上传失败，请重试')}
+  }
+  prog.style.display='none';
+  document.getElementById('imgInput').value='';
+}
+
+function fileToBase64(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>resolve(reader.result.split(',')[1]);
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function addPreview(url,idx){
+  const list=document.getElementById('imgPreviewList');
+  const div=document.createElement('div');
+  div.className='img-preview';div.id='imgPrev'+idx;
+  div.innerHTML='<img src="'+url+'"><button class="img-remove" onclick="removeImg('+idx+')">&times;</button>';
+  list.appendChild(div);
+}
+
+function removeImg(idx){
+  const url=uploadedImages[idx];
+  if(!url)return;
+  const ta=document.getElementById('npContent');
+  ta.value=ta.value.replace(new RegExp('!?\\[[^\\]]*\\]\\('+url.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')+'\\)\\n?','g'),'');
+  uploadedImages[idx]='';
+  const el=document.getElementById('imgPrev'+idx);
+  if(el)el.remove();
+}
 
 function parseMeta(body){
   const m=body.match(/^<!--author:(.+?)-->/);
@@ -192,6 +271,7 @@ async function submitPost(){
     await gh(API+"/issues",{method:'POST',body:JSON.stringify({title:title,body:'<!--author:'+author+'-->\n'+content,labels:[category]})});
     toast('发布成功！');
     document.getElementById('npAuthor').value='';document.getElementById('npTitle').value='';document.getElementById('npContent').value='';
+    document.getElementById('imgPreviewList').innerHTML='';uploadedImages=[];
   }catch(e){toast('发布失败，请重试')}
   btn.disabled=false;btn.textContent='发布回忆';showList();
 }
@@ -229,7 +309,7 @@ function renderList(){
 
 function renderDetail(p){
   const c=document.getElementById('detailView');
-  c.innerHTML='<div class="back-btn" onclick="showList()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回列表</div><div class="detail-title">'+esc(p.title)+'</div><div class="detail-meta"><div class="detail-avatar '+getAC(p.author)+'">'+getInit(p.author)+'</div><div><div class="detail-author">'+esc(p.author)+'</div><div class="detail-time">'+fmtTime(p.time)+(p.category?' &middot; <span class="category-tag tag-'+p.category+'">'+p.category+'</span>':'')+'</div></div></div><div class="detail-body">'+esc(p.content)+'</div><div class="comments-section"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>评论 ('+p.comments.length+')</h3>'+p.comments.map(cm=>'<div class="comment-item"><div class="comment-avatar '+getAC(cm.author)+'">'+getInit(cm.author)+'</div><div class="comment-body"><span class="c-author">'+esc(cm.author)+'</span><span class="c-time">'+fmtTime(cm.time)+'</span><div class="c-text">'+esc(cm.text)+'</div></div></div>').join('')+(p.comments.length===0?'<p style="color:var(--text3);font-size:14px;padding:12px 0">还没有评论，来说两句吧</p>':'')+'<div class="comment-input-wrap"><input type="text" id="commentAuthor" placeholder="你的昵称" style="max-width:120px"><input type="text" id="commentText" placeholder="写下你的评论..." onkeydown="if(event.key===\'Enter\')addComment('+p.id+')"><button class="btn btn-submit btn-sm" onclick="addComment('+p.id+')">发送</button></div></div>';
+  c.innerHTML='<div class="back-btn" onclick="showList()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回列表</div><div class="detail-title">'+esc(p.title)+'</div><div class="detail-meta"><div class="detail-avatar '+getAC(p.author)+'">'+getInit(p.author)+'</div><div><div class="detail-author">'+esc(p.author)+'</div><div class="detail-time">'+fmtTime(p.time)+(p.category?' &middot; <span class="category-tag tag-'+p.category+'">'+p.category+'</span>':'')+'</div></div></div><div class="detail-body">'+renderContent(p.content)+'</div><div class="comments-section"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>评论 ('+p.comments.length+')</h3>'+p.comments.map(cm=>'<div class="comment-item"><div class="comment-avatar '+getAC(cm.author)+'">'+getInit(cm.author)+'</div><div class="comment-body"><span class="c-author">'+esc(cm.author)+'</span><span class="c-time">'+fmtTime(cm.time)+'</span><div class="c-text">'+renderContent(cm.text)+'</div></div></div>').join('')+(p.comments.length===0?'<p style="color:var(--text3);font-size:14px;padding:12px 0">还没有评论，来说两句吧</p>':'')+'<div class="comment-input-wrap"><input type="text" id="commentAuthor" placeholder="你的昵称" style="max-width:120px"><input type="text" id="commentText" placeholder="写下你的评论..." onkeydown="if(event.key===\'Enter\')addComment('+p.id+')"><button class="btn btn-submit btn-sm" onclick="addComment('+p.id+')">发送</button></div></div>';
 }
 
 function showList(){
