@@ -1,0 +1,416 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>青春不散场 — 高三毕业生的高中记忆</title>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  :root{
+    --bg:#f5f6f8;--card:#fff;--primary:#4f6ef7;--primary-light:#eef1ff;
+    --text:#1a1a2e;--text2:#555;--text3:#999;--border:#e8e8ec;
+    --radius:12px;--shadow:0 2px 12px rgba(0,0,0,.06);
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;background:var(--bg);color:var(--text);line-height:1.6;min-height:100vh}
+  a{color:var(--primary);text-decoration:none}
+
+  /* HEADER */
+  .site-header{
+    background:linear-gradient(135deg,#4f6ef7 0%,#7b5ea7 50%,#e06c8a 100%);
+    color:#fff;position:sticky;top:0;z-index:100;
+    box-shadow:0 2px 20px rgba(79,110,247,.3);
+  }
+  .header-inner{max-width:960px;margin:0 auto;padding:20px 24px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+  .site-logo{display:flex;align-items:center;gap:12px}
+  .site-logo svg{width:40px;height:40px;flex-shrink:0}
+  .site-logo h1{font-size:22px;font-weight:700;letter-spacing:.5px}
+  .site-logo p{font-size:12px;opacity:.85;margin-top:2px}
+  .header-actions{display:flex;gap:10px}
+  .btn{display:inline-flex;align-items:center;gap:6px;padding:9px 20px;border-radius:8px;font-size:14px;font-weight:600;border:none;cursor:pointer;transition:all .2s}
+  .btn-primary{background:#fff;color:var(--primary)}
+  .btn-primary:hover{background:#f0f0f0;transform:translateY(-1px)}
+  .btn-outline{background:rgba(255,255,255,.15);color:#fff;border:1.5px solid rgba(255,255,255,.4)}
+  .btn-outline:hover{background:rgba(255,255,255,.25)}
+  .btn-sm{padding:6px 14px;font-size:13px;border-radius:6px}
+  .btn-ghost{background:transparent;color:var(--primary);border:1.5px solid var(--border)}
+  .btn-ghost:hover{background:var(--primary-light)}
+  .btn-submit{background:var(--primary);color:#fff}
+  .btn-submit:hover{background:#3d5ce5}
+  .btn-submit:disabled{opacity:.5;cursor:not-allowed}
+
+  /* MAIN */
+  .main-wrap{max-width:960px;margin:0 auto;padding:20px 24px 60px}
+
+  /* STATS */
+  .stats-bar{display:flex;gap:16px;margin-bottom:20px;flex-wrap:wrap}
+  .stat-card{flex:1;min-width:120px;background:var(--card);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);text-align:center}
+  .stat-card .num{font-size:28px;font-weight:700;color:var(--primary)}
+  .stat-card .label{font-size:12px;color:var(--text3);margin-top:2px}
+
+  /* TABS */
+  .tabs{display:flex;gap:6px;margin-bottom:20px;overflow-x:auto;padding-bottom:4px;-webkit-overflow-scrolling:touch}
+  .tabs::-webkit-scrollbar{height:0}
+  .tab{padding:8px 18px;border-radius:20px;font-size:14px;font-weight:500;white-space:nowrap;cursor:pointer;transition:all .2s;background:var(--card);color:var(--text2);border:1.5px solid var(--border);flex-shrink:0}
+  .tab:hover{border-color:var(--primary);color:var(--primary)}
+  .tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+  .tab .emoji{margin-right:4px}
+
+  /* SEARCH */
+  .search-wrap{margin-bottom:16px;position:relative}
+  .search-wrap input{width:100%;padding:11px 16px 11px 42px;border:1.5px solid var(--border);border-radius:10px;font-size:14px;outline:none;background:var(--card);transition:border .2s;box-shadow:var(--shadow)}
+  .search-wrap input:focus{border-color:var(--primary)}
+  .search-wrap svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--text3)}
+
+  /* POST LIST */
+  .post-list{display:flex;flex-direction:column;gap:12px}
+  .post-card{background:var(--card);border-radius:var(--radius);padding:20px 24px;box-shadow:var(--shadow);cursor:pointer;transition:all .2s;border:1.5px solid transparent}
+  .post-card:hover{border-color:var(--primary);transform:translateY(-1px);box-shadow:0 4px 20px rgba(79,110,247,.1)}
+  .post-card .post-head{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+  .post-card .avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700;color:#fff;flex-shrink:0}
+  .post-card .meta{flex:1}
+  .post-card .author{font-size:14px;font-weight:600;color:var(--text)}
+  .post-card .time{font-size:12px;color:var(--text3)}
+  .post-card .category-tag{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600;white-space:nowrap}
+  .post-card .title{font-size:17px;font-weight:700;margin-bottom:6px;color:var(--text)}
+  .post-card .preview{font-size:14px;color:var(--text2);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .post-card .post-footer{display:flex;align-items:center;gap:16px;margin-top:12px;font-size:13px;color:var(--text3)}
+  .post-card .post-footer span{display:flex;align-items:center;gap:4px}
+
+  /* POST DETAIL */
+  .post-detail{background:var(--card);border-radius:var(--radius);padding:32px;box-shadow:var(--shadow);display:none}
+  .post-detail .back-btn{display:inline-flex;align-items:center;gap:6px;font-size:14px;color:var(--text3);cursor:pointer;margin-bottom:20px;transition:color .2s}
+  .post-detail .back-btn:hover{color:var(--primary)}
+  .post-detail .detail-title{font-size:24px;font-weight:700;margin-bottom:16px;line-height:1.4}
+  .post-detail .detail-meta{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid var(--border)}
+  .post-detail .detail-avatar{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:700;color:#fff;flex-shrink:0}
+  .post-detail .detail-author{font-size:15px;font-weight:600}
+  .post-detail .detail-time{font-size:13px;color:var(--text3)}
+  .post-detail .detail-body{font-size:15px;line-height:1.9;color:var(--text);white-space:pre-wrap}
+
+  /* COMMENTS */
+  .comments-section{margin-top:32px;padding-top:24px;border-top:1px solid var(--border)}
+  .comments-section h3{font-size:16px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+  .comment-item{display:flex;gap:12px;padding:14px 0;border-bottom:1px solid var(--border)}
+  .comment-item:last-child{border-bottom:none}
+  .comment-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+  .comment-body{flex:1}
+  .comment-body .c-author{font-size:13px;font-weight:600}
+  .comment-body .c-time{font-size:12px;color:var(--text3);margin-left:8px}
+  .comment-body .c-text{font-size:14px;color:var(--text2);margin-top:4px}
+  .comment-input-wrap{display:flex;gap:10px;margin-top:16px}
+  .comment-input-wrap input{flex:1;padding:10px 16px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:border .2s}
+  .comment-input-wrap input:focus{border-color:var(--primary)}
+
+  /* NEW POST FORM */
+  .new-post-form{background:var(--card);border-radius:var(--radius);padding:28px 32px;box-shadow:var(--shadow);display:none}
+  .new-post-form h2{font-size:20px;font-weight:700;margin-bottom:20px;display:flex;align-items:center;gap:8px}
+  .form-group{margin-bottom:16px}
+  .form-group label{display:block;font-size:13px;font-weight:600;color:var(--text2);margin-bottom:6px}
+  .form-group input,.form-group textarea,.form-group select{width:100%;padding:10px 14px;border:1.5px solid var(--border);border-radius:8px;font-size:14px;outline:none;transition:border .2s;font-family:inherit;background:#fff}
+  .form-group input:focus,.form-group textarea:focus,.form-group select:focus{border-color:var(--primary)}
+  .form-group textarea{min-height:180px;resize:vertical;line-height:1.8}
+  .form-actions{display:flex;gap:10px;justify-content:flex-end;margin-top:20px}
+
+  /* EMPTY & LOADING */
+  .empty-state{text-align:center;padding:60px 20px;color:var(--text3)}
+  .empty-state svg{width:80px;height:80px;margin-bottom:16px;opacity:.4}
+  .empty-state p{font-size:15px;margin-bottom:8px}
+  .empty-state .sub{font-size:13px}
+  .loading-spinner{text-align:center;padding:40px;color:var(--text3)}
+  .loading-spinner::after{content:'';display:inline-block;width:24px;height:24px;border:3px solid var(--border);border-top-color:var(--primary);border-radius:50%;animation:spin .8s linear infinite;margin-left:8px;vertical-align:middle}
+  @keyframes spin{to{transform:rotate(360deg)}}
+
+  /* TAGS */
+  .tag-班级回忆{background:#e8f5e9;color:#2e7d32}
+  .tag-校园趣事{background:#fff3e0;color:#e65100}
+  .tag-毕业感言{background:#eef1ff;color:#3949ab}
+  .tag-恩师难忘{background:#fce4ec;color:#c62828}
+  .tag-青春相册{background:#f3e5f5;color:#7b1fa2}
+  .tag-食堂吐槽{background:#fff8e1;color:#f57f17}
+
+  .avatar-1{background:#4f6ef7}.avatar-2{background:#34c759}.avatar-3{background:#ff9500}
+  .avatar-4{background:#ff3b5c}.avatar-5{background:#af52de}.avatar-6{background:#007aff}
+  .avatar-7{background:#ff6482}.avatar-8{background:#30b0c7}
+
+  /* TOAST */
+  .toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:#333;color:#fff;padding:10px 24px;border-radius:8px;font-size:14px;z-index:999;opacity:0;transition:opacity .3s;pointer-events:none}
+  .toast.show{opacity:1}
+
+  /* DB STATUS */
+  .db-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text3);margin-bottom:12px}
+  .db-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+  .db-dot.online{background:#34c759}.db-dot.offline{background:#ff3b5c}.db-dot.loading{background:#ff9500;animation:pulse 1s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
+  @media(max-width:640px){
+    .header-inner{padding:16px}.site-logo h1{font-size:18px}.main-wrap{padding:16px}
+    .post-card{padding:16px}.post-detail{padding:20px}.new-post-form{padding:20px}
+    .stats-bar{gap:10px}.stat-card{padding:12px}.stat-card .num{font-size:22px}
+  }
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .fade-in{animation:fadeIn .3s ease}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="site-logo">
+      <svg viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" fill="rgba(255,255,255,.2)"/><path d="M12 26c0-4.4 3.6-8 8-8s8 3.6 8 8" stroke="#fff" stroke-width="2" stroke-linecap="round"/><circle cx="16" cy="16" r="2" fill="#fff"/><circle cx="24" cy="16" r="2" fill="#fff"/><path d="M14 22c1.5 2 4 3 6 3s4.5-1 6-3" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/></svg>
+      <div><h1>青春不散场</h1><p>高三毕业生的高中记忆站</p></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-outline btn-sm" onclick="showList()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>浏览帖子
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="showNewPost()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>发布回忆
+      </button>
+    </div>
+  </div>
+</header>
+
+<div class="main-wrap">
+  <div class="db-status" id="dbStatus">
+    <span class="db-dot loading" id="dbDot"></span>
+    <span id="dbLabel">连接数据库中...</span>
+  </div>
+
+  <div class="stats-bar" id="statsBar">
+    <div class="stat-card"><div class="num" id="statPosts">-</div><div class="label">回忆帖子</div></div>
+    <div class="stat-card"><div class="num" id="statComments">-</div><div class="label">温暖评论</div></div>
+    <div class="stat-card"><div class="num" id="statUsers">-</div><div class="label">参与同学</div></div>
+    <div class="stat-card"><div class="num">6</div><div class="label">话题分区</div></div>
+  </div>
+
+  <div class="search-wrap" id="searchWrap">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" placeholder="搜索帖子标题或内容..." id="searchInput" oninput="filterPosts()">
+  </div>
+
+  <div class="tabs" id="tabsBar">
+    <div class="tab active" data-cat="全部" onclick="switchTab(this)"><span class="emoji">🏠</span>全部</div>
+    <div class="tab" data-cat="班级回忆" onclick="switchTab(this)"><span class="emoji">🏫</span>班级回忆</div>
+    <div class="tab" data-cat="校园趣事" onclick="switchTab(this)"><span class="emoji">😂</span>校园趣事</div>
+    <div class="tab" data-cat="毕业感言" onclick="switchTab(this)"><span class="emoji">🎓</span>毕业感言</div>
+    <div class="tab" data-cat="恩师难忘" onclick="switchTab(this)"><span class="emoji">👨‍🏫</span>恩师难忘</div>
+    <div class="tab" data-cat="青春相册" onclick="switchTab(this)"><span class="emoji">📸</span>青春相册</div>
+    <div class="tab" data-cat="食堂吐槽" onclick="switchTab(this)"><span class="emoji">🍜</span>食堂吐槽</div>
+  </div>
+
+  <div id="listView" class="post-list"><div class="loading-spinner">加载中</div></div>
+  <div id="detailView" class="post-detail"></div>
+  <div id="newPostView" class="new-post-form">
+    <h2><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>发布新回忆</h2>
+    <div class="form-group"><label>你的昵称</label><input type="text" id="npAuthor" placeholder="输入你的名字或昵称" maxlength="20"></div>
+    <div class="form-group"><label>话题分区</label>
+      <select id="npCategory">
+        <option value="班级回忆">班级回忆</option><option value="校园趣事">校园趣事</option>
+        <option value="毕业感言">毕业感言</option><option value="恩师难忘">恩师难忘</option>
+        <option value="青春相册">青春相册</option><option value="食堂吐槽">食堂吐槽</option>
+      </select>
+    </div>
+    <div class="form-group"><label>标题</label><input type="text" id="npTitle" placeholder="给你的回忆起个标题" maxlength="60"></div>
+    <div class="form-group"><label>正文</label><textarea id="npContent" placeholder="写下你的高中回忆..."></textarea></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="showList()">取消</button>
+      <button class="btn btn-submit" id="submitBtn" onclick="submitPost()">发布回忆</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== FIREBASE SDK (compat) ====== -->
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore-compat.js"></script>
+
+<script>
+// ============================================================
+//  在下面粘贴你的 Firebase 配置（替换 YOUR_xxx）
+// ============================================================
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+// ============================================================
+
+const AVATAR_COLORS=['avatar-1','avatar-2','avatar-3','avatar-4','avatar-5','avatar-6','avatar-7','avatar-8'];
+const CATEGORIES=['班级回忆','校园趣事','毕业感言','恩师难忘','青春相册','食堂吐槽'];
+let db,isOnline=false,allPosts=[],currentTab='全部',currentPostId=null;
+
+function getInitial(n){return n.charAt(0)}
+function getAvatarClass(n){let h=0;for(let i=0;i<n.length;i++)h=n.charCodeAt(i)+((h<<5)-h);return AVATAR_COLORS[Math.abs(h)%AVATAR_COLORS.length]}
+function esc(s){const d=document.createElement('div');d.textContent=s;return d.innerHTML}
+function fmtTime(ts){if(!ts)return '';if(typeof ts==='string')return ts;const d=ts.toDate?ts.toDate():new Date(ts);const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
+
+function setDbStatus(s){
+  document.getElementById('dbDot').className='db-dot '+s;
+  document.getElementById('dbLabel').textContent=s==='online'?'数据库已连接 · 数据永久保存':s==='offline'?'离线模式 · 请配置Firebase':'连接数据库中...';
+}
+
+function initFirebase(){
+  try{
+    if(firebaseConfig.apiKey==='YOUR_API_KEY'){setDbStatus('offline');return false}
+    firebase.initializeApp(firebaseConfig);
+    db=firebase.firestore();
+    setDbStatus('online');
+    isOnline=true;
+    return true;
+  }catch(e){console.error(e);setDbStatus('offline');return false}
+}
+
+async function loadPosts(){
+  if(!isOnline){renderList();return}
+  try{
+    const snap=await db.collection('posts').orderBy('createdAt','desc').get();
+    allPosts=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderList();updateStats();
+  }catch(e){console.error(e);showToast('加载帖子失败')}
+}
+
+async function loadPostDetail(id){
+  if(!isOnline)return;
+  try{
+    const doc=await db.collection('posts').doc(id).get();
+    if(!doc.exists){showToast('帖子不存在');showList();return}
+    const post={id:doc.id,...doc.data()};
+    const cSnap=await db.collection('posts').doc(id).collection('comments').orderBy('createdAt','asc').get();
+    post.comments=cSnap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDetail(post);
+  }catch(e){console.error(e);showToast('加载详情失败')}
+}
+
+async function submitPost(){
+  const author=document.getElementById('npAuthor').value.trim();
+  const category=document.getElementById('npCategory').value;
+  const title=document.getElementById('npTitle').value.trim();
+  const content=document.getElementById('npContent').value.trim();
+  if(!author){showToast('请输入昵称');return}
+  if(!title){showToast('请输入标题');return}
+  if(!content){showToast('请输入正文');return}
+  const btn=document.getElementById('submitBtn');btn.disabled=true;btn.textContent='发布中...';
+  if(isOnline){
+    try{
+      await db.collection('posts').add({author,category,title,content,likes:0,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      showToast('发布成功！');
+    }catch(e){showToast('发布失败');btn.disabled=false;btn.textContent='发布回忆';return}
+  }
+  document.getElementById('npAuthor').value='';document.getElementById('npTitle').value='';document.getElementById('npContent').value='';
+  btn.disabled=false;btn.textContent='发布回忆';showList();
+}
+
+async function addComment(postId){
+  const author=document.getElementById('commentAuthor').value.trim();
+  const text=document.getElementById('commentText').value.trim();
+  if(!author){showToast('请输入昵称');return}
+  if(!text)return;
+  if(isOnline){
+    try{
+      await db.collection('posts').doc(postId).collection('comments').add({author,text,createdAt:firebase.firestore.FieldValue.serverTimestamp()});
+      await db.collection('posts').doc(postId).update({commentCount:firebase.firestore.FieldValue.increment(1)});
+      showToast('评论成功！');loadPostDetail(postId);
+    }catch(e){showToast('评论失败')}
+  }
+}
+
+async function toggleLike(postId,cur){
+  if(!isOnline){showToast('离线无法点赞');return}
+  try{await db.collection('posts').doc(postId).update({likes:(cur||0)+1});loadPostDetail(postId)}catch(e){showToast('操作失败')}
+}
+
+function updateStats(){
+  const authors=new Set();let cc=0;
+  allPosts.forEach(p=>{authors.add(p.author);cc+=(p.commentCount||0)});
+  document.getElementById('statPosts').textContent=allPosts.length;
+  document.getElementById('statComments').textContent=cc;
+  document.getElementById('statUsers').textContent=authors.size;
+}
+
+function renderList(){
+  const c=document.getElementById('listView');
+  const kw=document.getElementById('searchInput').value.trim().toLowerCase();
+  let f=allPosts.filter(p=>{
+    if(currentTab!=='全部'&&p.category!==currentTab)return false;
+    if(kw&&!p.title.toLowerCase().includes(kw)&&!p.content.toLowerCase().includes(kw))return false;
+    return true;
+  });
+  if(!f.length){
+    c.innerHTML='<div class="empty-state fade-in"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9 12h6M12 9v6M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg><p>'+(allPosts.length?'该分区暂无帖子':'还没有任何帖子')+'</p><p class="sub">'+(allPosts.length?'换个分区看看':'成为第一个分享回忆的人吧')+'</p></div>';return;
+  }
+  c.innerHTML=f.map(p=>'<div class="post-card fade-in" onclick="showDetail(\''+p.id+'\')"><div class="post-head"><div class="avatar '+getAvatarClass(p.author)+'">'+getInitial(p.author)+'</div><div class="meta"><div class="author">'+esc(p.author)+'</div><div class="time">'+fmtTime(p.createdAt)+'</div></div><span class="category-tag tag-'+p.category+'">'+p.category+'</span></div><div class="title">'+esc(p.title)+'</div><div class="preview">'+esc(p.content)+'</div><div class="post-footer"><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg> '+(p.likes||0)+'</span><span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg> '+(p.commentCount||0)+' 条评论</span></div></div>').join('');
+}
+
+function renderDetail(p){
+  currentPostId=p.id;const c=document.getElementById('detailView');const cms=p.comments||[];
+  c.innerHTML='<div class="back-btn" onclick="showList()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>返回列表</div><div class="detail-title">'+esc(p.title)+'</div><div class="detail-meta"><div class="detail-avatar '+getAvatarClass(p.author)+'">'+getInitial(p.author)+'</div><div><div class="detail-author">'+esc(p.author)+'</div><div class="detail-time">'+fmtTime(p.createdAt)+' &middot; <span class="category-tag tag-'+p.category+'">'+p.category+'</span></div></div></div><div class="detail-body">'+esc(p.content)+'</div><div style="margin-top:20px"><button class="btn btn-ghost btn-sm" onclick="toggleLike(\''+p.id+'\','+(p.likes||0)+')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78L12 21.23l8.84-8.84a5.5 5.5 0 000-7.78z"/></svg> 点赞 ('+(p.likes||0)+')</button></div><div class="comments-section"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>评论 ('+cms.length+')</h3>'+cms.map(cm=>'<div class="comment-item"><div class="comment-avatar '+getAvatarClass(cm.author)+'">'+getInitial(cm.author)+'</div><div class="comment-body"><span class="c-author">'+esc(cm.author)+'</span><span class="c-time">'+fmtTime(cm.createdAt)+'</span><div class="c-text">'+esc(cm.text)+'</div></div></div>').join('')+(cms.length===0?'<p style="color:var(--text3);font-size:14px;padding:12px 0">还没有评论，来说两句吧</p>':'')+'<div class="comment-input-wrap"><input type="text" id="commentAuthor" placeholder="你的昵称" style="max-width:120px"><input type="text" id="commentText" placeholder="写下你的评论..." onkeydown="if(event.key===\'Enter\')addComment(\''+p.id+'\')"><button class="btn btn-submit btn-sm" onclick="addComment(\''+p.id+'\')">发送</button></div></div>';
+}
+
+function showList(){
+  document.getElementById('listView').style.display='flex';
+  document.getElementById('detailView').style.display='none';
+  document.getElementById('newPostView').style.display='none';
+  document.getElementById('tabsBar').style.display='flex';
+  document.getElementById('searchWrap').style.display='block';
+  document.getElementById('statsBar').style.display='flex';
+  currentPostId=null;loadPosts();
+}
+function showDetail(id){
+  document.getElementById('listView').style.display='none';
+  document.getElementById('detailView').style.display='block';
+  document.getElementById('newPostView').style.display='none';
+  document.getElementById('tabsBar').style.display='none';
+  document.getElementById('searchWrap').style.display='none';
+  document.getElementById('statsBar').style.display='none';
+  loadPostDetail(id);window.scrollTo({top:0,behavior:'smooth'});
+}
+function showNewPost(){
+  if(!isOnline){showToast('请先配置 Firebase 再发帖');return}
+  document.getElementById('listView').style.display='none';
+  document.getElementById('detailView').style.display='none';
+  document.getElementById('newPostView').style.display='block';
+  document.getElementById('tabsBar').style.display='none';
+  document.getElementById('searchWrap').style.display='none';
+  document.getElementById('statsBar').style.display='none';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function switchTab(el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');currentTab=el.dataset.cat;renderList();
+}
+function filterPosts(){renderList()}
+
+// ====== SEED DATA ======
+async function seedIfEmpty(){
+  if(!isOnline)return;
+  try{
+    const snap=await db.collection('posts').limit(1).get();
+    if(!snap.empty)return;
+    const seeds=[
+      {author:'林小溪',category:'班级回忆',title:'还记得高三(2)班的那个角落吗',content:'每次走进教室，最后排靠窗的那个位置总是最先被阳光照到。那是我的"宝座"，每天早自习我都会在那里偷偷吃面包，一边假装在背英语课文。\n\n同桌小周总是帮我"放风"，班主任一来就用手肘捅我。有一次她捅得太用力，把我的面包直接捅飞了，全班都转过头来看我，老班也只是笑着摇了摇头。\n\n现在想想，那些早自习的阳光、面包的香味、还有同桌的手肘，都是我最怀念的高三味道。',likes:47,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()},
+      {author:'数学课代表',category:'恩师难忘',title:'老王说的那句话，我到现在都记得',content:'我们的数学老师王老师，外号"老王"，是个五十多岁的老教师。他讲课的时候总喜欢说一些"人生哲理"，虽然当时觉得啰嗦，但现在回想起来句句都是金句。\n\n印象最深的是高考前最后一节数学课，他放下粉笔，看着全班说："同学们，高考只是人生的一个逗号，不是句号。无论结果如何，你们都要好好生活。"\n\n然后他顿了顿，又补了一句："当然，数学还是要考好的。"\n\n全班都笑了，笑着笑着就有人哭了。',likes:89,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()},
+      {author:'干饭少女',category:'食堂吐槽',title:'学校食堂的"神秘料理"，竟然有点想念',content:'说到食堂，我必须要吐槽一下那些年的"创意菜品"：番茄炒月饼（中秋节特供）、橘子炖排骨（据说是营养师搭配的）、还有永远分不清是炒面还是炒粉的"薛定谔的主食"。\n\n但说实话，现在在大学食堂吃饭，却再也吃不出高中食堂的那种味道了。不是因为味道变好了，而是因为没有了一群朋友围坐在一起，一边吐槽一边大笑的那种氛围。',likes:63,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()},
+      {author:'毕业生001',category:'毕业感言',title:'毕业典礼那天，雨下得很大',content:'毕业典礼那天，雨下得很大，像是老天也在替我们哭。\n\n我们在校门口合了最后一张影，大家笑着说"茄子"，但笑容里都带着不舍。三年的朝夕相处，就这样浓缩在了一张照片里。\n\n班主任破天荒地没有说"你们是我带过最差的一届"，而是红着眼眶说了一句："你们，是我带过最舍不得的一届。"\n\n全班沉默了三秒，然后爆发了最长的一次掌声。\n\n后来我们各自拖着行李箱走出了校门，回头望了最后一眼。教学楼的灯还亮着，好像在说：去吧，我在这里等你们回来。',likes:128,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()},
+      {author:'体育委员大刘',category:'校园趣事',title:'运动会上的"名场面"，笑到毕业',content:'高三最后一次运动会，我们班发生了几件至今被津津乐道的事：\n\n第一件：男子4x100接力，第三棒的小李跑着跑着鞋飞了，他居然光着脚跑完了全程，还拿了第二名。\n\n第二件：拔河比赛，我们班对阵"学霸班"，本以为稳赢，结果被对面一群看起来文弱书生的同学碾压了。后来才知道他们赛前偷偷去健身房练了一个月。\n\n第三件：闭幕式的才艺表演，我们班排练了一个月的舞蹈，结果音乐放错了，大家即兴freestyle，反而拿了最佳创意奖。',likes:76,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()},
+      {author:'文艺少女阿绿',category:'青春相册',title:'翻到了高一入学时的军训照，变化好大',content:'今天整理相册，翻出了高一入学时军训的照片，差点没认出自己。\n\n那时候每个人都晒得黑黑的，穿着肥大的迷彩服，脸上带着紧张又兴奋的表情。我记得站军姿的时候偷偷和旁边的同学聊天，被教官发现罚做俯卧撑。\n\n三年过去了，照片里那些青涩的面孔都成长了好多。但每次聚会的时候，大家拿出这些照片互相调侃，仿佛又回到了那个炎热的九月。\n\n时光改变了很多东西，但没有改变的是我们一起经历过的这些记忆。',likes:54,commentCount:0,createdAt:firebase.firestore.FieldValue.serverTimestamp()}
+    ];
+    const batch=db.batch();
+    seeds.forEach(s=>{batch.set(db.collection('posts').doc(),s)});
+    await batch.commit();
+  }catch(e){console.error('Seed error:',e)}
+}
+
+// ====== BOOT ======
+(async function(){
+  const ok=initFirebase();
+  if(ok){await seedIfEmpty()}
+  showList();
+})();
+</script>
+</body>
+</html>
