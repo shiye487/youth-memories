@@ -87,8 +87,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hira
 .img-preview{position:relative;width:80px;height:80px;border-radius:8px;overflow:hidden;border:1px solid var(--border)}
 .img-preview img{width:100%;height:100%;object-fit:cover}
 .img-preview .img-remove{position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:rgba(0,0,0,.5);color:#fff;border:none;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center}
-.detail-body img{max-width:100%;border-radius:8px;margin:8px 0}
-.c-text img{max-width:200px;border-radius:6px;margin:4px 0}
+.detail-body img{max-width:100%;max-height:500px;border-radius:8px;margin:8px 0;cursor:pointer;transition:opacity .3s;background:var(--bg)}
+.detail-body img.loading-img{opacity:.3;min-height:120px}
+.detail-body img.loaded{opacity:1}
+.c-text img{max-width:200px;max-height:200px;border-radius:6px;margin:4px 0;background:var(--bg)}
+.img-lightbox{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:200;display:flex;align-items:center;justify-content:center;cursor:zoom-out}
+.img-lightbox img{max-width:95%;max-height:95%;border-radius:4px}
 .upload-progress{font-size:12px;color:var(--primary);margin-left:8px}
 @media(max-width:640px){.header-inner{padding:16px}.site-logo h1{font-size:18px}.main-wrap{padding:16px}.post-card{padding:16px}.post-detail{padding:20px}.new-post-form{padding:20px}.stats-bar{gap:10px}.stat-card{padding:12px}.stat-card .num{font-size:22px}}
 </style>
@@ -160,36 +164,78 @@ function esc(s){const d=document.createElement('div');d.textContent=s;return d.i
 function fmtTime(s){if(!s)return '';const d=new Date(s);const p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+' '+p(d.getHours())+':'+p(d.getMinutes())}
 function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500)}
 
-// Render markdown images in content
+// Render markdown images in content with CDN acceleration
+function toCDN(url){
+  // Convert raw.githubusercontent.com to jsDelivr CDN (fast in China)
+  return url.replace('https://raw.githubusercontent.com/'+REPO+'/main/','https://cdn.jsdelivr.net/gh/'+REPO+'@main/');
+}
 function renderContent(text){
   let safe=esc(text);
-  safe=safe.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,'<img src="$2" alt="$1" loading="lazy">');
+  safe=safe.replace(/!\[([^\]]*)\]\(([^)]+)\)/g,function(m,alt,url){
+    const cdnUrl=toCDN(url);
+    return '<img src="'+cdnUrl+'" alt="'+alt+'" loading="lazy" class="loading-img" onload="this.classList.remove(\'loading-img\');this.classList.add(\'loaded\')" onclick="showLightbox(this.src)">';
+  });
   safe=safe.replace(/\n/g,'<br>');
   return safe;
 }
+function showLightbox(src){
+  const lb=document.createElement('div');lb.className='img-lightbox';
+  lb.innerHTML='<img src="'+src+'">';
+  lb.onclick=function(){document.body.removeChild(lb)};
+  document.body.appendChild(lb);
+}
 
-// Image upload handling
+// Compress image using canvas before upload
+function compressImage(file,maxW,maxH){
+  return new Promise((resolve)=>{
+    if(file.size<300*1024){resolve(file);return} // Skip small files
+    const img=new Image();
+    const url=URL.createObjectURL(file);
+    img.onload=function(){
+      let w=img.width,h=img.height;
+      if(w>maxW){h=h*(maxW/w);w=maxW}
+      if(h>maxH){w=w*(maxH/h);h=maxH}
+      const canvas=document.createElement('canvas');
+      canvas.width=w;canvas.height=h;
+      const ctx=canvas.getContext('2d');
+      ctx.drawImage(img,0,0,w,h);
+      URL.revokeObjectURL(url);
+      canvas.toBlob(function(blob){
+        if(blob&&blob.size<file.size)resolve(new File([blob],file.name,{type:'image/jpeg'}));
+        else resolve(file);
+      },'image/jpeg',0.8);
+    };
+    img.onerror=function(){URL.revokeObjectURL(url);resolve(file)};
+    img.src=url;
+  });
+}
+
+// Image upload handling with compression
 async function handleImages(files){
   if(!files||!files.length)return;
   const prog=document.getElementById('uploadProgress');
   for(let i=0;i<files.length;i++){
-    const file=files[i];
-    if(file.size>5*1024*1024){toast('图片不能超过5MB');continue}
-    prog.style.display='inline';prog.textContent='上传中 '+(i+1)+'/'+files.length+'...';
+    let file=files[i];
+    if(file.size>10*1024*1024){toast('图片不能超过10MB');continue}
+    prog.style.display='inline';prog.textContent='处理中 '+(i+1)+'/'+files.length+'...';
     try{
+      // Compress image
+      file=await compressImage(file,1200,1200);
+      prog.textContent='上传中 '+(i+1)+'/'+files.length+'...';
       const b64=await fileToBase64(file);
       const ts=Date.now()+'_'+Math.random().toString(36).slice(2,8);
-      const ext=file.name.split('.').pop()||'jpg';
-      const fname='img_'+ts+'.'+ext;
+      const fname='img_'+ts+'.jpg';
       const path='images/'+fname;
       const res=await fetch(API+'/contents/'+path,{method:'PUT',headers:HEADERS,body:JSON.stringify({message:'Upload image',content:b64})});
       if(!res.ok)throw new Error(res.status);
-      const data=await res.json();
+      await res.json();
+      // Store raw URL but display will use CDN
       const rawUrl='https://raw.githubusercontent.com/'+REPO+'/main/'+path;
+      const cdnUrl=toCDN(rawUrl);
       uploadedImages.push(rawUrl);
       const ta=document.getElementById('npContent');
       ta.value+=(ta.value?'\n':'')+'!['+file.name+']('+rawUrl+')';
-      addPreview(rawUrl,uploadedImages.length-1);
+      addPreview(cdnUrl,uploadedImages.length-1);
       toast('图片上传成功');
     }catch(e){console.error(e);toast('图片上传失败，请重试')}
   }
